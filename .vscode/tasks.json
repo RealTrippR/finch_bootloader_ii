@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "StartQemu",
+            "type": "shell",
+            "dependsOn": "build_payloads",
+            "command": "echo 'QEMU started';  qemu-system-i386  -M pc -cpu 486  -s -S -drive format=raw,file=tests/bin/fs.bin -monitor stdio",
+            "isBackground": true,
+            "problemMatcher": [
+            {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                    ],
+                    "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "QEMU started",
+                    }
+                }
+            ]
+        },
+        {
+            "label": "build_payloads",
+            "type": "shell",
+            "dependsOn": "build_bootldr",
+            "options": {
+                "cwd": "${workspaceFolder}/tests"
+            },
+            "command": "make payloads -B"
+        },
+        {
+            "label": "build_bootldr",
+            "type": "shell",
+            "command": "just build"
+        },
+    ]
+}

@@ -1,0 +1,49 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch QEMU",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/bin/fs.elf",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerServerAddress": "localhost:1234",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "text": "-gdb-set osabi none"
+                },
+                {
+                    "text": "-gdb-set architecture i8086"                    
+                }
+            ],
+
+            "stopAtEntry": true,
+            "preLaunchTask": "StartQemu"
+            
+        },
+        {
+            "name": "Build",
+            "type": "cppdbg",
+            "preLaunchTask": "build_bootldr",
+        },
+        {
+            "name": "Build payloads",
+            "type": "cppdbg",
+            "preLaunchTask": "build_payloads",
+        },
+        {
+            "name": "Python: Debug Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+                    "cwd": "${workspaceFolder}/tests",
+
+            "console": "integratedTerminal"
+        }
+    ]
+}
