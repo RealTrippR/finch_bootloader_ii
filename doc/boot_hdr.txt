@@ -9,9 +9,7 @@ in mode 0:
     +16:
         <i16> load segment
     +18:
-        <i16> load offset ; MUST BE A MULTIPLE OF 16
-    +20:
         <i16> entry segment
-    +22:
+    +20:
         <i16> entry offset
-    &mode+24:
+    &mode+20:

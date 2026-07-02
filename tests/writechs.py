@@ -5,21 +5,20 @@ DRIVE_HEADS = 2
 DRIVE_CYLINDERS = 80
 BYTES_PER_SECTOR = 512
 
-BOOTLOADER_SIZE = 512
+BOOTLOADER_SIZE = 1024
 FS_DST_DIR = "bin/fs.bin"
 FS_SRC_DIR = "bin/fs.o"
 
 PAYLOAD_FILE_DIR = "bin/"
-HEADER_SIZE = 24
+HEADER_SIZE = 22
 
 
 PAYLOAD_INFOS = [ 
     {
         "FILE": "payload1.bin",
         "NAME": "payload1",
-        "LOAD_SEGMENT": 0,
-        "LOAD_OFFSET": 0x8000,
-        "ENTRY_SEGMENT": 0,
+        "LOAD_SEGMENT": 0x800,
+        "ENTRY_SEGMENT": 0x0,
         "ENTRY_OFFSET": 0x8018,
         "FILE_OFFSET": 1024
     }
@@ -93,8 +92,18 @@ def write_mbr_entry(index, partition_type, content_bytes_begin, content_byte_len
     chs_last = offset_to_chs(math.ceil((content_bytes_begin+content_byte_length)/BYTES_PER_SECTOR) * BYTES_PER_SECTOR)
     fs[offset+5:offset+8] = chs_to_bytes(chs_last)
 
+    print("CHS INFO [FOLLOWING VALUES ARE IN 512-BYTE SECTORS, NOT BYTES]")    
+    print(f"CHS FIRST: \n\t[C:{chs_first[0]}  H:{chs_first[1]}  S:{chs_first[2]}]")
+    print(f"CHS LAST: \n\t[C:{chs_last[0]}   H:{chs_last[1]}   S:{chs_last[2]}]")
+
+
     lba_begin   = math.floor(content_bytes_begin/BYTES_PER_SECTOR)
     lba_len     = math.ceil(content_byte_length/BYTES_PER_SECTOR)
+
+    print("LBA INFO: [FOLLOWING VALUES ARE IN 512-BYTE SECTORS, NOT BYTES]")
+    print(f"\tBEGIN: {lba_begin}")
+    print(f"\tEND: {lba_begin+lba_len}")
+    print(f"\tLEN: {lba_len}")
     fs[offset+8:offset+12] = lba_begin.to_bytes(4, byteorder='little')
     fs[offset+12:offset+16] = lba_len.to_bytes(4, byteorder='little')
 
@@ -117,9 +126,8 @@ def write_payload(payload: payload, accum, size_override=None):
     sec_count = math.ceil(payload.header.size / 512)
     hdr[14:16] = sec_count.to_bytes(2, byteorder='little')
     hdr[16:18] = payload.header.load_segment.to_bytes(2, byteorder='little')
-    hdr[18:20] = payload.header.load_offset.to_bytes(2, byteorder='little')
-    hdr[20:22] = payload.header.entry_segment.to_bytes(2, byteorder='little')
-    hdr[22:24] = payload.header.entry_offset.to_bytes(2, byteorder='little')
+    hdr[18:20] = payload.header.entry_segment.to_bytes(2, byteorder='little')
+    hdr[20:22] = payload.header.entry_offset.to_bytes(2, byteorder='little')
 
 
 
@@ -155,7 +163,6 @@ for i in range(0, len(PAYLOAD_INFOS)):
         pl.header.mode = 0
         pl.header.entry_offset = INFO["ENTRY_OFFSET"]
         pl.header.entry_segment = INFO["ENTRY_SEGMENT"]
-        pl.header.load_offset = INFO["LOAD_OFFSET"]
         pl.header.load_segment = INFO["LOAD_SEGMENT"]
         pl.header.size = len(contents)
         PAYLOADS.append(pl)
@@ -165,7 +172,7 @@ for i in range(0, len(PAYLOAD_INFOS)):
 accum = 0
 for i in range(0, len(PAYLOADS)):
     pl = PAYLOADS[i]
-    write_mbr_entry(i, 0x19, BOOTLOADER_SIZE, pl.header.size-BOOTLOADER_SIZE)
+    write_mbr_entry(i, 0x19, BOOTLOADER_SIZE, pl.header.size)
     write_payload(PAYLOADS[i], accum+BOOTLOADER_SIZE)
     accum+=pl.header.size
 

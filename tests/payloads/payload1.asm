@@ -3,19 +3,24 @@
 
 ; LOADS 0x8000
 
-; LOAD SEGMENT:  0x800
-; LOAD OFFSET:   0x18
-; ENTRY SEGMENT: 0x800
-; ENTRY OFFSET:  0x18
+; LOAD SEGMENT:  0x0800
+; LOAD OFFSET:   0x0018
+; ENTRY SEGMENT: 0x0000
+; ENTRY OFFSET:  0x8018
 
-global _payload_entry
-_payload_entry:
-
+global _start
+_start:
+    
     mov ax, 0x3
     int 0x10
-    mov si, str ;0x80,0x3c ??
+    mov si, str
 
-    call _CALL_putstr
+    call _CL_putstr
+
+    mov ax, 15
+
+    call _CL_putword
+
     jmp hang
 
 
@@ -23,7 +28,7 @@ _payload_entry:
 ; ARGS:
 ; @param str_begin : ds:si : ptr to a null terminated string
 ; @brief very simple string output function, prints all characters of a string to the console
-_CALL_putstr:
+_CL_putstr:
     mov ah, 0x0E
 .loop:
     lodsb
@@ -34,7 +39,38 @@ _CALL_putstr:
 .ret:
     ret
 
+
+; ARGS:
+; @param AX: 16-bit unsigned integer [PRESERVED]
+; @brief outputs an unsigned 16-bit integer to the console
+_CL_putword:
+    pusha
+    mov dx,0
+    push dx
+.s:
+    ; MOD. DX, AX, BX
+    mov dx, 0
+    mov bx, 10
+    div bx
+    add dx, 48
+    push dx
+
+    cmp ax,0
+    jne .s
+.p:
+    pop dx
+    cmp dx,0
+    je .r
+    mov al, dl
+    mov ah, 0x0E
+    int 0x10
+    jmp .p
+.r:
+    popa
+    ret
+
+
 hang:
     jmp hang
 
-str: db 13,10,"Hello from payload1.asm.",0
+str: db 13,10,"Hello from payload1.asm.",13,10,0

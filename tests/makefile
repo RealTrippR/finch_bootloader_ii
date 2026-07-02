@@ -2,8 +2,12 @@ BDIR := ./bin
 PDIR := ./payloads
 UBDIR := ../bin
 
+PAYLOAD_SRC := largepayload.asm
+#PAYLOAD_SRC := payload1.asm
+
+
 # build payloads
-$(BDIR)/payload1.o: $(PDIR)/payload1.asm
+$(BDIR)/payload1.o: $(PDIR)/$(PAYLOAD_SRC)
 	nasm -f elf32 -g $< -o $@
 
 	i686-elf-ld -m elf_i386 \
@@ -34,5 +38,5 @@ to_bin:
 build: payload1  link  to_bin
 
 # this consolidates the binary, in the same memory layout as the elf
-payloads: build
+payloads: build writechs.py $(BDIR)/payload1.o $(PDIR)/$(PAYLOAD_SRC)
 	py writechs.py
