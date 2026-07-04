@@ -104,7 +104,7 @@ respectively. In user interface mode, the contents of the video
 buffer will not be cleared or modified before
 execution is handed to the user code.
 
-    It is recommend to initialize all data, segments, registers
+    It is recommend to initialize all data, segments, and registers
 immediately after the boot process is complete.
 
 
