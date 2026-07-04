@@ -42,7 +42,7 @@ This is configured by the
 'FIXED_LOAD' 
 and 
 'FIXED_LOAD_INDEX'
-macros defined in fboot.asm.
+macros defined in config.inc.
 
 FIXED_LOAD is enabled when it is defined as 1,
 and disabled when defined as 1.
