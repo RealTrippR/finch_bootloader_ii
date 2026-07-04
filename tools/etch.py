@@ -67,7 +67,7 @@ except Exception as error:
     print(f"Error details: {error}")
     exit(-1)
 
-print(f"Succesfully etched entries into '{filename}':")
+print(f"Successfully etched entries into '{filename}':")
 for i in range(1,len(args),2):
     index = args[i]
     name = args[i+1]

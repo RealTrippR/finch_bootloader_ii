@@ -163,10 +163,10 @@ _bentry2:
 
     jmp .retrykey
 
-firststr: db "FINCH BOOTLOADER (C) TRIPP R., 2025-2026",13,10,"V2.0",13,10,0
+firststr: db 13,10,"FINCH BOOTLOADER II (C) TRIPP R., 2025-2026",13,10,13,10,0
 ; DATA ------------------------------------------
 sctr_hdr: db 13,10,"N",0xBA,"START [chs]",0xBA,"END [chs]",0xC9,0
-sel_msg: db 13,10,"select:",0
+sel_msg: db 13,10,13,10,"> select:",0
 
 
 
