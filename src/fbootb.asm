@@ -38,7 +38,7 @@ _bentry2:
     
 
     mov bp, 0x7C00+446
-    mov si, 0x7E00+448
+    mov si, 0x7E00+468
     mov cl, 0 ; current index
 .skp_part:
 
