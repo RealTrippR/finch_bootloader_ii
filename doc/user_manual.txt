@@ -46,7 +46,7 @@ record that does not have a status byte of 0.
 the first and last CHS addresses, and the name of the 
 partition, if applicable. The names of the partitions must
 be embedded at an offset of 448 bytes within the user interface
-sector, with a 16 byte stride. The names are formatted as
+sector, with a 11 byte stride. The names are formatted as
 null-terminated ascii strings.
 
 
@@ -56,7 +56,7 @@ ETCHING PARTITION DATA INTO SECTION-B
 partition which does not have a status byte of 0) must be
 etched into a the B section at an offset of 448 bytes from
 the start of the 2nd sector on the disk (the B section.)
-The names are to be organized at a stride of 16 bytes,
+The names are to be organized at a stride of 11 bytes,
 formatted as null terminated ASCII strings. String length
 may range to at least 0 characters and at most 15 characters.
 

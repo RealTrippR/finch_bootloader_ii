@@ -2,6 +2,8 @@
 
 %if FIXED_LOAD == 0
 
+%define HDR_NAME_STRIDE 11
+
 [BITS 16]
 
 ; FINCH BOOTLOADER, COPYRIGHT (C) TRIPP R., 2025-2026
@@ -26,7 +28,7 @@ _bentry2:
     call _CL_putstr
 
     mov al, 0xCD
-    mov cx, 40
+    mov cl, 40
     call _CL_putbr
     
     mov si, sctr_hdr
@@ -42,17 +44,15 @@ _bentry2:
     mov cl, 0 ; current index
 .skp_part:
 
-
     ; print sector info
 
     cmp byte [bp],0x80
     jne .nxt_part
 
     push si
-    mov ax, 0x0E0D
-    int 0x10
-    mov ax, 0x0E0A
-    int 0x10
+
+    mov si, firststr+37
+    call _CL_putstr
 
     xor ax,ax
     mov al,cl
@@ -98,7 +98,7 @@ _bentry2:
     pop si
 
 .nxt_part:
-    add si, 16
+    add si, HDR_NAME_STRIDE
     add bp, 16
     cmp bp, 0x7C00+510
     jne .skp_part
@@ -167,11 +167,11 @@ _bentry2:
 
     jmp .retrykey
 
-firststr: db 13,10,"FINCH BOOTLOADER (C) TRIPP R.",13,10,0
+firststr: db 13,10,"FINCH BOOTLOADER (C) TRIPP R., 2025",13,10,0
 ;firststr: db 0
 ; DATA ------------------------------------------
 sctr_hdr: db 13,10,"N",0xBA,"START [chs]",0xBA,"END [chs]",0xC9,0
-sel_msg: db 13,10,13,10,"> select:",0
+sel_msg: db 13,10,13,10,">select:",0
 
 
 
@@ -217,6 +217,9 @@ nonfixed_read_hdr:
     ; es:bx = load segment
     mov ax, 0x0201 ; read sector op code / sector count
     jmp nonfixed_read_hdr_ret
+
+
+
 
 
 
