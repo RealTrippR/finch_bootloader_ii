@@ -1,6 +1,6 @@
 # Finch Bootloader II
 
-    The finch bootloader is a minimal bootloader
+The finch bootloader is a minimal bootloader
 designed to be as compact and performant as possible.
 It requires only 512 bytes of disk space for fixed-selection mode 
 and 1024 when configured in user-selection mode.
