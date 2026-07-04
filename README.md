@@ -6,6 +6,12 @@ It requires only 512 bytes of disk space for fixed-selection mode
 and 1024 when configured in user-selection mode.
 
 
+![Example User Interface Configuration](https://github.com/RealTrippR/finch_bootloader_ii/ui_config_example.gif)
+
+
+
+
+
 ```
 
 USER'S MANUAL
