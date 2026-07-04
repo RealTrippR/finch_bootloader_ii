@@ -40,7 +40,10 @@ USER SELECTION MODE
 selection mode. The bootloader jumps to the user interface
 code, loaded from the 2nd sector ['SECTION B'] on disk.
 This gives the user to boot from any partition in the master boot
-record that does not have a status byte of 0. 
+record that does not have a status byte of 0. The selected
+partition index is checked to ensure that it is a valid and
+bootable partition, a short beep is emitted to indicate
+an invalid selection.
 
     Displayed to the user is the index of the partitions,
 the first and last CHS addresses, and the name of the 
@@ -80,11 +83,13 @@ script arguments.
 ON PROGRAM ENTRY
 ---------------------------------------------------------
     Finch makes no guarantee to the value of any registers
-on program entry. In user mode, the contents of the video
-buffer will not be cleared or modified in any way before
+on program entry, other than the instruction pointer and the code 
+segment, which are set to the entry offset and the entry segment,
+respectively. In user interface mode, the contents of the video
+buffer will not be cleared or modified before
 execution is handed to the user code.
 
-    It is recommend to init0ialize all data, segments, registers
+    It is recommend to initialize all data, segments, registers
 immediately after the boot process is complete.
 
 
