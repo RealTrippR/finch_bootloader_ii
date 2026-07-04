@@ -72,7 +72,7 @@ ETCHING PARTITION DATA INTO SECTION-B
 ---------------------------------------------------------
     The names of any bootable partitions (that is, a
 partition which does not have a status byte of 0) must be
-etched into a the B section at an offset of 448 bytes from
+etched into the B section at an offset of 448 bytes from
 the start of the 2nd sector on the disk (the B section.)
 The names are to be organized at a stride of 11 bytes,
 formatted as null terminated ASCII strings. String length
