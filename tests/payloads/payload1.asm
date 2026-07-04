@@ -73,4 +73,4 @@ _CL_putword:
 hang:
     jmp hang
 
-str: db 13,10,"Hello from payload1.asm.",13,10,0
+str: db "+=+ STR_BEGIN +=+",13,10,"Hello from payload1.asm.",13,10,0

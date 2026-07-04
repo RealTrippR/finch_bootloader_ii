@@ -2,6 +2,7 @@
 
 %define FIXED_LOAD 0
 %define FIXED_LOAD_INDEX 0
+
 %define LOAD2ENTRY 0x7C00+512
 %define STACK 0x7A00
 
@@ -153,15 +154,15 @@ jc booterr
     
     ; ENTRY SEGMENT: HEADER_LOAD_ADDRESS + 20
     ; LOAD_SEGMENT: HEADER_LOAD_ADDRESS + 22
-    mov ax,[HEADER_LOAD_ADDRESS + 18]
+    mov ax,[HEADER_LOAD_ADDRESS + 8]
     mov [0x7C00+28], ax   ; ENTRY SEGMENT 
-    mov ax, [HEADER_LOAD_ADDRESS + 20]
+    mov ax, [HEADER_LOAD_ADDRESS + 10]
     mov [0x7C00+30], ax  ; ENTRY OFFSET
 
     ;mov ax,[HEADER_LOAD_ADDRESS + 14]
     ;mov [0x7C00+6], ax   ; SECTOR COUNT [this can be ignored, the bootloader only sees the MBR start:end range]
 
-    mov bx,[HEADER_LOAD_ADDRESS + 16]
+    mov bx,[HEADER_LOAD_ADDRESS + 6]
     mov [0x7C00+8], bx   ; LOAD SEGMENT
 
 

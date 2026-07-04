@@ -10,7 +10,7 @@ FS_DST_DIR = "bin/fs.bin"
 FS_SRC_DIR = "bin/fs.o"
 
 PAYLOAD_FILE_DIR = "bin/"
-HEADER_SIZE = 22
+HEADER_SIZE = 12
 
 
 PAYLOAD_INFOS = [ 
@@ -19,7 +19,7 @@ PAYLOAD_INFOS = [
         "NAME": "payload1",
         "LOAD_SEGMENT": 0x800,
         "ENTRY_SEGMENT": 0x0,
-        "ENTRY_OFFSET": 0x8018,
+        "ENTRY_OFFSET": 0x8010,
         "FILE_OFFSET": 1024
     }
 ]
@@ -121,13 +121,11 @@ def write_payload(payload: payload, accum, size_override=None):
     hdr = bytearray(HEADER_SIZE)
 
     hdr[0] = payload.header.mode
-    hdr[1] = len(payload.name)
-    hdr[2:14] = payload.name
     sec_count = math.ceil(payload.header.size / 512)
-    hdr[14:16] = sec_count.to_bytes(2, byteorder='little')
-    hdr[16:18] = payload.header.load_segment.to_bytes(2, byteorder='little')
-    hdr[18:20] = payload.header.entry_segment.to_bytes(2, byteorder='little')
-    hdr[20:22] = payload.header.entry_offset.to_bytes(2, byteorder='little')
+    hdr[4:6] = sec_count.to_bytes(2, byteorder='little')
+    hdr[6:8] = payload.header.load_segment.to_bytes(2, byteorder='little')
+    hdr[8:10] = payload.header.entry_segment.to_bytes(2, byteorder='little')
+    hdr[10:12] = payload.header.entry_offset.to_bytes(2, byteorder='little')
 
 
 

@@ -2,8 +2,8 @@ BDIR := ./bin
 PDIR := ./payloads
 UBDIR := ../bin
 
-PAYLOAD_SRC := largepayload.asm
-#PAYLOAD_SRC := payload1.asm
+#PAYLOAD_SRC := largepayload.asm
+PAYLOAD_SRC := payload1.asm
 
 
 # build payloads
