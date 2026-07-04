@@ -4,19 +4,16 @@ ENTRY(_entry)
 
 SECTIONS
 { 
+
 	. = 0x7C00;
 	.fboot : AT(0x7C00) SUBALIGN(4) {
 		fboot.o(.text)
 	}
 
 	/* prevent overwrite */
-	ASSERT(. <= 0x7DBE, "Bootloader exceeds 446 bytes")
-	/*
-	.fboot : AT(0x7E00) SUBALIGN(4) {
-		fboot.o(.text)
-	}*/
-	/* prevent overwrite */
-	ASSERT(. <= 0x8000, "Bootloader exceeds 2 sectors")
+	ASSERT(. <= 0x7DBE, "Bootloader-A exceeds 446 bytes")
+
+
 
 	/* https://www.reddit.com/r/C_Programming/comments/147pegg/pad_zeros_to_the_end_of_output_binary_until_its/ */
 	.pad : {
@@ -28,6 +25,21 @@ SECTIONS
 		SHORT(0xAA55);
 	}
 	
+
+	. = 0x7E00;
+	.fbootb : AT(0x7E00) SUBALIGN(4) {
+		fbootb.o(.text)
+	}
+	/* prevent overwrite */
+	ASSERT(. <= 0x7FC0, "Bootloader-B exceeds 448 bytes")
+
+	/* https://www.reddit.com/r/C_Programming/comments/147pegg/pad_zeros_to_the_end_of_output_binary_until_its/ */
+	.pad : {
+		. = . + (512 - (. % 512)) % 512;
+		BYTE(0)
+	}
+
+
 	/* it is incredibly important to make note of alignment issues - the linker script will automatically move files forward to the next boundary,
 	even if no alignment is specific (default is 16).*/
 	

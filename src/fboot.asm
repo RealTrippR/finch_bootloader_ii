@@ -1,5 +1,9 @@
 [BITS 16]
 
+%define FIXED_LOAD 0
+%define FIXED_LOAD_INDEX 0
+%define LOAD2ENTRY 0x7C00+512
+%define STACK 0x7A00
 
 ; it is very important that no sections are defined here, otherwise it could confuse the linker.
 
@@ -13,15 +17,19 @@
 %define HEADER_LOAD_ADDRESS 0x7C00+512
 %define TMP_512_ADDR 0x7C00+512
 
+extern nonfixed_read_hdr
+
 global _entry
 _entry:
     ; reset DS segment
     xor ax, ax
     mov ds, ax
+    ; initialize stack
+    mov ss, ax
+    mov sp, STACK
+    
     mov di,0
     mov es,ax ; ES:DI must be zeroed due to BIOS error with query int.
-    mov ss,ax
-    mov sp, 0x7C00+512
 
     mov [0x7C00+1], dl ; DRIVE NO.
 
@@ -39,19 +47,39 @@ _entry:
     mov ax, 0x7C0
     mov es, ax
 
-    ; wait for input
-    ; https://www.ctyme.com/intr/rb-1754.htm
-    ;xor ah, ah
-.keyloop:
-    
 
-    ;int 16h
-    ;cmp ah,0
-    ;je .keyloop
+%if FIXED_LOAD == 0
+    ; load second sector
 
-    ; al = keyinput
-    ;sub al, '1'
-    mov al, 0 ;  DEBUG ONLY
+    mov bp, 3
+.tryagain2:
+    push bp
+
+    mov ax, 0201h
+    mov cx, 0002h
+    mov dl, [0x7C00+1] ; DRIVE NO.
+    mov dh, 0
+    mov bx, 512
+    int 0x13
+    pop bp
+
+    cmp bp,0
+    jne .skpchk2
+    jc booterr
+.skpchk2:
+    jc .tryagain2
+    dec bp
+
+load_ii_done:
+    jmp LOAD2ENTRY
+
+%endif
+global _aret
+_aret:
+
+    %if FIXED_LOAD == 1
+    mov al, %FIXED_LOAD_INDEX
+    %endif
     jmp _load_bootable
     
 
@@ -59,11 +87,13 @@ _entry:
 ; ARGS:
 ; @param al - MBR index
 _load_bootable:
+%if FIXED_LOAD == 1
     ; load first sector
     mov ah,0
     shl al, 4
     add ax, 446
     mov bx, ax
+%endif
     
     ; load first sector
     
@@ -100,7 +130,7 @@ _load_bootable:
 
 
 
-
+%if FIXED_LOAD == 1
     mov dl, [0x7C00+1] ; drive num
     mov bx, 512
     ; es:bx = load segment
@@ -108,7 +138,15 @@ _load_bootable:
 
     int 0x13 ; sector interrupt
     jc booterr
+%endif
+%if FIXED_LOAD == 0
+    jmp nonfixed_read_hdr
+global nonfixed_read_hdr_ret
+nonfixed_read_hdr_ret:
 
+int 0x13 ; sector interrupt
+jc booterr
+%endif
 
     ; COPY HEADER DATA
     
@@ -232,8 +270,6 @@ _load_bootable:
 
 
 .read_done:
-    mov ax, [0x7C00 + 28]
-    mov ax, [0x7C00 + 30] 
     push word [0x7C00 + 28]   ; ENTRY SEGMENT
     push word [0x7C00 + 30]   ; ENTRY OFFSET
 
@@ -261,15 +297,25 @@ _load_bootable:
 
     int 0x13
     jc booterr
+
+    pop es
+
+    ; copy to location
+    mov cx, 512
+    mov si, TMP_512_ADDR
+    xor di,di
+
+    cld
+    rep movsb ; DS:(E)SI to ES:(E)DI.
+
+
+
     ; cl = sectors read
     mov cl,1
     mov [0x7C00+26], cl
     call _CL_inc_write_cur    
 
-    ; copy to location
 
-
-    pop es
     pop cx
     mov bx, es
     jmp .read_boundary_ret
@@ -324,29 +370,15 @@ _CL_inc_write_cur:
     shl cx, 5
     add [0x7C00+8],cx
     ; the load segment must be in bx before a jmp to next_read
-    
+    mov es, [0x7C00+8]
     ret
 
-
+global booterr
 booterr:
-    xor ax,ax
-    mov ds,ax
-    mov si, booterr_str
-    call _CL_putstr
-.hng:
-    jmp .hng 
-booterr_str: db "ERR",0
-
-; ARGS:
-; @param str_begin : ds:si : ptr to a null terminated string
-; @brief very simple string output function, prints all characters of a string to the console
-_CL_putstr:
-    mov ah, 0x0E
-.loop:
-    lodsb
-    cmp al, 0
-    je .ret
+    mov ax, 0x0E45
     int 0x10
-    jmp .loop
-.ret:
-    ret
+    mov ax, 0x0E52
+    int 0x10
+    int 0x10
+    cli
+    hlt

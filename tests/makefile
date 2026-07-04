@@ -37,6 +37,12 @@ to_bin:
 
 build: payload1  link  to_bin
 
-# this consolidates the binary, in the same memory layout as the elf
-payloads: build writechs.py $(BDIR)/payload1.o $(PDIR)/$(PAYLOAD_SRC)
+writechs:
 	py writechs.py
+
+etch: $(BDIR)/fs.bin
+	py ../tools/etch.py $(BDIR)/fs.bin 0 FINCH
+
+# this consolidates the binary, in the same memory layout as the elf
+payloads: build writechs.py $(BDIR)/payload1.o $(PDIR)/$(PAYLOAD_SRC) writechs etch
+

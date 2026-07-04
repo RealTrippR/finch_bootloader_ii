@@ -5,7 +5,7 @@
             "label": "StartQemu",
             "type": "shell",
             "dependsOn": "build_payloads",
-            "command": "echo 'QEMU started';  qemu-system-i386  -M pc -cpu 486  -s -S -drive if=floppy,format=raw,file=tests/bin/fs.bin -monitor stdio",
+            "command": "echo 'QEMU started';  qemu-system-i386  -M pc -cpu 486  -s -S -drive if=floppy,format=raw,file=tests/bin/fs.bin  -monitor stdio    -audiodev dsound,id=snd0 -machine pcspk-audiodev=snd0",
             "isBackground": true,
             "problemMatcher": [
             {

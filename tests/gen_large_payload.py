@@ -34,14 +34,13 @@ mov bp, 0
 
 push bp
 mov ax,0
-mov al, [bp]
+mov ax, [bp]
 call _CL_putword
 pop bp
 
-inc bp
-
+add bp,2
 cmp bp, 65535
-jne .inner_loop
+jb .inner_loop
 
 
 pop dx
