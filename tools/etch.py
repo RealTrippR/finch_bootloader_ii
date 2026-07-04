@@ -10,8 +10,9 @@ There can be 4 entries in total, 1 for every partition.
 
 The entries begin at an offset of 448 from the end of the first sector on disk. 
 '''
-WRITE_OFFSET_ABS = 960
-ENTRY_STRIDE = 16
+WRITE_OFFSET_ABS = 512+468
+MAX_NAME_LEN = 10
+ENTRY_STRIDE = MAX_NAME_LEN+1
 
 args = sys.argv[1:]
 
@@ -43,11 +44,11 @@ try:
 
             name = args[i+1]
 
-            if (len(name)>15):
+            if (len(name)>MAX_NAME_LEN):
                 print(f"Error: invalid name: '{name}' the maximum name length of 15 characters.")
                 exit(-1)
 
-            entry = bytearray(16)
+            entry = bytearray(MAX_NAME_LEN+1)
             entry[:len(name)] = name.encode('ascii')
             entry[len(name):len(name)+1] = int(0).to_bytes(1)
             file.seek(WRITE_OFFSET_ABS + ENTRY_STRIDE * index)

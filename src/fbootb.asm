@@ -1,3 +1,7 @@
+%include "config.inc"
+
+%if FIXED_LOAD == 0
+
 [BITS 16]
 
 ; FINCH BOOTLOADER, COPYRIGHT (C) TRIPP R., 2025-2026
@@ -143,7 +147,7 @@ _bentry2:
     or  al, 0x03
     out 0x61, al
 
-    mov ax, 0
+    xor ax, ax
     mov es, ax
     mov bx, [es:0x46C]
     add bx, 3
@@ -163,7 +167,8 @@ _bentry2:
 
     jmp .retrykey
 
-firststr: db 13,10,"FINCH BOOTLOADER II (C) TRIPP R., 2025-2026",13,10,13,10,0
+firststr: db 13,10,"FINCH BOOTLOADER (C) TRIPP R.",13,10,0
+;firststr: db 0
 ; DATA ------------------------------------------
 sctr_hdr: db 13,10,"N",0xBA,"START [chs]",0xBA,"END [chs]",0xC9,0
 sel_msg: db 13,10,13,10,"> select:",0
@@ -172,6 +177,41 @@ sel_msg: db 13,10,13,10,"> select:",0
 
 global nonfixed_read_hdr
 nonfixed_read_hdr:
+
+
+    ; load first sector
+    
+    ; ik it seems odd to load the ending chs address first,
+    ; but the sector read after this requires the registers to be set
+    ; to data from the first chs address.
+
+    ; load the ending CHS address
+    add bx,5
+    ; load ending chs address
+    mov dh, [es:bx] ; head
+    inc bx ; +1
+    mov cl, [es:bx] ; sector
+    inc bx ; +2
+    mov ch, [es:bx] ; cylinder
+    ; DATA, WILL BE USED TO DETERMINE HEAD READ BEHAVIOR
+    mov [0x7C00+21], dh ; HEAD OF LAST ADDRESS
+    mov [0x7C00+22], cx ; SECTOR,CYLINDER OF LAST ADDRESS
+    ;mov [0x7C00+23], ch ; CYLINDER OF LAST ADDRESS
+
+    ; load starting chs address
+    sub bx, 6
+
+    mov dh, [es:bx] ; head
+    inc bx ; +1
+    mov cl, [es:bx] ; sector
+    inc bx ; +2
+    mov ch, [es:bx] ; cylinder
+    ; DATA, WILL BE USED TO DETERMINE HEAD READ BEHAVIOR
+    mov [0x7C00+18], dh ; HEAD OF STARTING ADDRESS
+    mov [0x7C00+19], cx ; SECTOR, CYLINDER OF STARTING ADDRESS
+    ;mov [0x7C00+20], ch ; CYLINDER OF STARTING ADDRESS
+
+
     mov dl, [0x7C00+1] ; drive num
     mov bx, 512
     ; es:bx = load segment
@@ -215,7 +255,6 @@ _CL_putstr:
 ; @param AX: 16-bit unsigned integer [PRESERVED]
 ; @brief outputs an unsigned 16-bit integer to the console
 _CL_putword:
-    pusha
     mov dx,0
     push dx
 .s:
@@ -237,7 +276,6 @@ _CL_putword:
     int 0x10
     jmp .p
 .r:
-    popa
     ret
 
 ; Prints a chs at address in BP as C:H:S
@@ -265,8 +303,9 @@ _CL_put_chs:
 
     ret
 
+%if ($ - $$) > 468
+    %error "Bootloader-B exceeds 468 bytes."
+%endif
 
+%endif
 
-
-hang:
-    jmp hang

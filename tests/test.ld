@@ -30,8 +30,6 @@ SECTIONS
 	.fbootb : AT(0x7E00) SUBALIGN(4) {
 		fbootb.o(.text)
 	}
-	/* prevent overwrite */
-	ASSERT(. <= 0x7FC0, "Bootloader-B exceeds 448 bytes")
 
 	/* https://www.reddit.com/r/C_Programming/comments/147pegg/pad_zeros_to_the_end_of_output_binary_until_its/ */
 	.pad : {

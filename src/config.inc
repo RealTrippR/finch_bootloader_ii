@@ -1,0 +1,2 @@
+%define FIXED_LOAD 0
+%define FIXED_LOAD_INDEX 0

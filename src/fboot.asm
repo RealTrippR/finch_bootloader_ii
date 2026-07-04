@@ -1,7 +1,6 @@
 [BITS 16]
 
-%define FIXED_LOAD 0
-%define FIXED_LOAD_INDEX 0
+%include "config.inc"
 
 %define LOAD2ENTRY 0x7C00+512
 %define STACK 0x7A00
@@ -79,7 +78,7 @@ global _aret
 _aret:
 
     %if FIXED_LOAD == 1
-    mov al, %FIXED_LOAD_INDEX
+    mov al, FIXED_LOAD_INDEX
     %endif
     jmp _load_bootable
     
@@ -96,6 +95,8 @@ _load_bootable:
     mov bx, ax
 %endif
     
+%if FIXED_LOAD == 1
+
     ; load first sector
     
     ; ik it seems odd to load the ending chs address first,
@@ -129,14 +130,11 @@ _load_bootable:
     ;mov [0x7C00+20], ch ; CYLINDER OF STARTING ADDRESS
 
 
-
-
-%if FIXED_LOAD == 1
     mov dl, [0x7C00+1] ; drive num
     mov bx, 512
     ; es:bx = load segment
     mov ax, 0x0201 ; read sector op code / sector count
-
+    push bp
     int 0x13 ; sector interrupt
     jc booterr
 %endif
@@ -145,8 +143,27 @@ _load_bootable:
 global nonfixed_read_hdr_ret
 nonfixed_read_hdr_ret:
 
+mov bp, 3
+
+.try_read_hdr:
+push ax
+push cx
+push dx
+
+push bp
 int 0x13 ; sector interrupt
-jc booterr
+pop bp
+pop ax
+pop cx
+pop dx
+
+cmp bp,0
+je booterr
+
+dec bp
+jc .try_read_hdr
+
+
 %endif
 
     ; COPY HEADER DATA
@@ -383,3 +400,7 @@ booterr:
     int 0x10
     cli
     hlt
+
+%if ($ - $$) > 446
+    %error "Bootloader-A exceeds 446 bytes."
+%endif

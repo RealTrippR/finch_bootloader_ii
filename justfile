@@ -31,16 +31,7 @@ build:
 		fboot.o \
 		fbootb.o
 
-	i686-elf-ld -m elf_i386 \
-		-o fbootb.elf \
-		-T "$SRC/bootb.ld" \
-		fboot.o \
-		fbootb.o
-
-
-
 	objcopy -O binary fboot.elf fboot.bin
-	objcopy -O binary fbootb.elf fbootb.bin
 
 clean:
 	#!/usr/bin/env sh
