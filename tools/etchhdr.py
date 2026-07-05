@@ -216,7 +216,9 @@ try:
 
             #if the offset of the entry is greater than the disk filesize, add padding to the file
             if (offset>=dsksize):
-                padding=(bytearray([0])*offset+1)-dsksize
+                bytestoadd= (offset+1-dsksize)
+                print(f"The offset of entry {part_filename} extends beyond the bounds of the disk file, {bytestoadd} bytes will be added prior to the partition contents.")
+                padding=bytearray(bytestoadd)
                 diskfile.write(padding)
 
 
