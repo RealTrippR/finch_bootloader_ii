@@ -2,8 +2,7 @@ import math
 import sys
 import os
 
-#args = sys.argv[1:]
-args = ["80","2","36","bin/fs.bin", "-m0", "0x19", "1024","bin/payload1.bin","0x800","0","0x8010"]
+args = sys.argv[1:]
 
 
 # usage:
