@@ -1,6 +1,6 @@
 Robins Free of Charge & Open Source Public License 25
 
-Copyright (C), 2025 - Tripp R, adk. All rights reserved.
+Copyright (C), 2025 - Tripp R. All rights reserved.
 
 Permission for this software, the "software" being source code, binaries, and documentation,
 shall hereby be granted, free of charge, to be used for any purpose, including commercial applications,

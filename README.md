@@ -42,7 +42,7 @@ This is configured by the
 'FIXED_LOAD' 
 and 
 'FIXED_LOAD_INDEX'
-macros defined in fboot.asm.
+macros defined in config.inc.
 
 FIXED_LOAD is enabled when it is defined as 1,
 and disabled when defined as 1.
@@ -72,7 +72,7 @@ ETCHING PARTITION DATA INTO SECTION-B
 ---------------------------------------------------------
     The names of any bootable partitions (that is, a
 partition which does not have a status byte of 0) must be
-etched into a the B section at an offset of 448 bytes from
+etched into the B section at an offset of 448 bytes from
 the start of the 2nd sector on the disk (the B section.)
 The names are to be organized at a stride of 11 bytes,
 formatted as null terminated ASCII strings. String length
@@ -104,7 +104,7 @@ respectively. In user interface mode, the contents of the video
 buffer will not be cleared or modified before
 execution is handed to the user code.
 
-    It is recommend to initialize all data, segments, registers
+    It is recommend to initialize all data, segments, and registers
 immediately after the boot process is complete.
 
 
