@@ -127,7 +127,6 @@ in little-endian format.
 
 
 HEADER FORMAT: 
-    <str>: <i8: length><content: bytes>
 ---------------------------------------------------------
 <i8> mode: (0=8086 16bit, all other values are reserved!)
 

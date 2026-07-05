@@ -48,5 +48,3 @@ SECTIONS
 		payload1.o(.text)
 	}
 }
-
-
