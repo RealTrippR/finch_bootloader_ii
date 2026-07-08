@@ -3,23 +3,30 @@ import sys
 import os
 
 args = sys.argv[1:]
+#args = ["80", "2", "36",		"bin/fs.bin",	 "-m0", "0x19", "1024", "bin/payload1.bin", "-5", "0x800", "0", "0x8010"]
 
 
 # usage:
 # py writehdr.py <cyls> <heads> <sectors>   <disk_file>     <entry>
 
 # entries are structured as
-# <offset> <partition_file_name> <load_segment> <entry_segment> <entry_offset>
+# <offset> <partition_file_name><*optional-N> <load_segment> <entry_segment> <entry_offset>
 # ex.
 # py writehdr.py 80 2 36	 bin/disk.bin	 1024 bin/entry.bin 0x800 0 0x8010
 
 
+
+hasprinted=0
 def print_usage():
+    global hasprinted
+    if (hasprinted==1):
+        return
     print("Usages: \npy writehdr.py <cyls> <heads> <sectors>   <disk_file>     <entry>")
     print("Entries are structured as: \n<flags> <offset> <partition_file_name> <load_segment> <entry_segment> <entry_offset>")
     print("Entry flags:\n\t-m<idx> <signature>\t\t -- writes partition addresses into master boot record.\n\t\t\t\t-m0 0x10 would be the first entry, -m1 0x10 the second, and so on.")
     
-    print("To clarify, the partition_file_name is only used to retrieve the size of the partition. This tool will NOT write the contents of that file into the disk.")
+    print("To clarify, the partition_file_name is only used to retrieve the size of the partition. This tool will NOT write the contents of that file into the disk. If the filename of the payload is followed by the minus(-) or (+) sign, its size will be offset by the following value.")
+    hasprinted=1
 
 def err(msg):
     print(F"Error: {msg}")
@@ -98,6 +105,19 @@ def write_mbr_entry(file, index, partition_type, content_bytes_begin, content_by
 
 
 
+import shlex
+
+
+def get_filename(s: str) -> tuple[str, str]:
+    tokens = shlex.split(s)
+    if not tokens:
+        raise ValueError("Expected a filename")
+
+    filename = tokens[0]
+    rest = " ".join(tokens[1:])
+
+    return filename, rest
+
 
 BYTES_PER_SECTOR = 512
 
@@ -129,7 +149,7 @@ except:
 DISK_FILENAME =""
 
 try:
-    DISK_FILENAME = args[3]
+    DISK_FILENAME, _ = get_filename(args[3])
 except:
     err(f"disk_filename: invalid input: {args[3]}")
 
@@ -183,8 +203,44 @@ try:
                 err(f"entry_offset: invalid input: {args[i]}")
 
             part_filename = ""
+            szoffset = None
+            szoffset_sign = None
+
             try:
-                part_filename = args[i+1]
+                part_filename, rest = get_filename(args[i+1])
+                
+                #if (part_filename==DISK_FILENAME):
+                   # err(f"The entry filename {part_filename} and the disk filename {DISK_FILENAME} cannot be equal")
+
+                if (len(rest) and (rest[0] == '-' or rest[0]=='+')):
+                    if (rest[0]=='-'):
+                        szoffset_sign = 0
+                    else:
+                        szoffset_sign = 1
+                    
+                    if (len(rest[0]>1)):
+                        szoffset = to_int(rest[1:])
+
+                elif (args[i+2][0]=='-' or args[i+2][0]=='+'):
+                    if (args[i+2][0]=='-'):
+                        szoffset_sign = 0
+                    else:
+                        szoffset_sign = 1
+
+                    if (len(args[i+2])>1):
+                        szoffset = to_int(args[i+2][1:])
+                        del args[i+2]
+
+                    if (szoffset==None):
+                        if (len(rest)>1):
+                            szoffset = to_int(rest[1])
+                        else:
+                            szoffset = to_int(args[i+2])
+                            del args[i+2]
+                    if szoffset == None:
+                        err(f"Invalid size offset directive.")
+
+
             except:
                 err(f"partition_filename: invalid input: {args[i+1]}")
 
@@ -207,11 +263,21 @@ try:
             try:
                 entry_offset = to_int(args[i+4])
             except:
+                if (len(args)<i+5):
+                    err(f"entry_offset is missing.")
                 err(f"entry_offset: invalid input: {args[i+4]}")
 
 
 
             size = os.path.getsize(part_filename)
+            if (szoffset):
+                if szoffset_sign == 0:
+                    size-=szoffset
+                    if (size < 0):
+                        err(f"Invalid size offset: A size offset of -{szoffset} will result in a negative file size for file {part_filename} of size {os.path.getsize(part_filename)}.")
+                else:
+                    size+=szoffset
+
             dsksize = os.path.getsize(DISK_FILENAME)
 
             #if the offset of the entry is greater than the disk filesize, add padding to the file
@@ -245,8 +311,12 @@ try:
 
     print(f"\n============================\nCompleted etching partition headers into disk binary '{DISK_FILENAME}'.\n")
 
-except FileNotFoundError: 
+except FileNotFoundError as e: 
+    print(f"Error Code: {e.errno}")      # Outputs: 2
+    print(f"Message: {e.strerror}")       # Outputs: No such file or directory
+    print(f"Missing File: {e.filename}")  # Outputs: missing_report.csv
     err(f"Failed to open disk file: {DISK_FILENAME}")
+    
 except FileExistsError: 
     err(f"Failed to open disk file: {DISK_FILENAME}")
 except Exception as e:
