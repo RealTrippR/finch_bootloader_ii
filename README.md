@@ -141,8 +141,8 @@ in mode 0:
         <i16> entry offset
     &mode+12:
 
-```
 
 ADDITIONAL NOTES
 ---------------------------------------------------------
 Upon startup, the drive number is stored as a single byte at the address 0x7C01.
+```
