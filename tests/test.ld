@@ -44,7 +44,7 @@ SECTIONS
 	
 	/*0x8000  [+18] to make room for header*/
     . = 0x8010; /* note that 8 bytes of padding are added to align it on 16 byte boundary, I couldn't get ALIGN(1) or SUBALIGN(1) to fix the issue. */
-    .payload1 : AT(0x8004) {
+    .payload1 : AT(0x8010) {
 		payload1.o(.text)
 	}
 }

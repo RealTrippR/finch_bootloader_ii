@@ -80,7 +80,6 @@ _aret:
     %if FIXED_LOAD == 1
     mov al, FIXED_LOAD_INDEX
     %endif
-    jmp _load_bootable
     
 
 
@@ -158,6 +157,7 @@ pop cx
 pop dx
 
 cmp bp,0
+mov ax, 0x0074
 je booterr
 
 dec bp
@@ -288,6 +288,7 @@ jc .try_read_hdr
 
 
 .read_done:
+
     push word [0x7C00 + 28]   ; ENTRY SEGMENT
     push word [0x7C00 + 30]   ; ENTRY OFFSET
 
@@ -393,9 +394,25 @@ _CL_inc_write_cur:
 
 global booterr
 booterr:
-    mov ax, 0x0E45
+    mov cx, 4
+    mov dx, ax
+    mov ah, 0x0E
+
+.nc:
+    mov al, dl
+    and al, 0x0F
+    add al, 65
+    shr dx, 4
+
     int 0x10
-    mov ax, 0x0E52
+    loop .nc
+
+    mov al, 32
+    int 0x10
+    
+    mov al, 0x45
+    int 0x10
+    mov al, 0x52
     int 0x10
     int 0x10
     cli

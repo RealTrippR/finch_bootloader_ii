@@ -26,7 +26,7 @@ link: test.ld $(BDIR)/payload1.o $(UBDIR)/fboot.o
 
 
 to_bin:
-	objcopy -O binary $(BDIR)/fs.elf  $(BDIR)/fs.o
+	objcopy -O binary $(BDIR)/fs.elf  $(BDIR)/fs.bin
 
 
 
@@ -41,5 +41,5 @@ etch: $(BDIR)/fs.bin
 	py ../tools/etchname.py $(BDIR)/fs.bin 0 FINCH
 
 # this consolidates the binary, in the same memory layout as the elf
-payloads: build writechs.py $(BDIR)/payload1.o $(PDIR)/$(PAYLOAD_SRC) writechs etch
+payloads: build writechs etch
 

@@ -8,6 +8,7 @@
 ; ENTRY SEGMENT: 0x0000
 ; ENTRY OFFSET:  0x8018
 
+er: db "ENTRY"
 global _start
 _start:
     
